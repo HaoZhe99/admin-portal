@@ -43,11 +43,11 @@ export default function SideNavigation() {
       <aside
         id="nav-menu-4"
         aria-label="Side navigation"
-        className={`z-40 h-full flex flex-col border-r border-r-slate-200 bg-white transition-transform lg:translate-x-0 ${
+        className={`h-full flex flex-col border-r border-r-slate-200 bg-white transition-transform lg:translate-x-0 ${
           isSideNavOpen ? "translate-x-0" : " -translate-x-full"
         }`}
       >
-        <div className="flex flex-col items-center gap-4 border-b border-slate-200 p-6">
+        <div className="bg-gray-50 flex flex-col items-center gap-4 border-b border-slate-200 p-6">
           <div className="shrink-0">
             <a
               href="#"
@@ -77,7 +77,7 @@ export default function SideNavigation() {
         </div>
         <nav
           aria-label="side navigation"
-          className="flex-1 divide-y divide-slate-100 overflow-auto"
+          className="flex-1 divide-y divide-slate-100 overflow-auto bg-gray-50"
         >
           <div>
             <ul className="flex flex-1 flex-col gap-1 py-3">
@@ -324,7 +324,7 @@ export default function SideNavigation() {
           </div>
         </nav>
 
-        <footer className="border-t border-slate-200 p-3">
+        <footer className="border-t border-slate-200 p-3 bg-gray-50">
           <a
             href="#"
             className="flex items-center gap-3 rounded p-3 text-slate-900 transition-colors hover:text-emerald-500 "

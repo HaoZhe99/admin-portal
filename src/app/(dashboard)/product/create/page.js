@@ -1,8 +1,16 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { isEmpty } from "lodash";
+import Image from "next/image";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 const ProductCreate = () => {
   const router = useRouter();
+
+  const [imageValue, setImageValue] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const toBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -24,6 +32,8 @@ const ProductCreate = () => {
 
     const base64Image = await toBase64(image);
 
+    setLoading(true);
+
     try {
       const res = await fetch("/api/product", {
         method: "POST",
@@ -42,18 +52,17 @@ const ProductCreate = () => {
         router.push("/product");
 
         const product = await res.json();
-
-        // setMessage(`Product "${product.name}" created successfully!`)
-        // setFormData({ name: '', description: '', price: '' }) // Clear form
+        toast(`Product "${product.name}" created successfully!`);
       } else {
         const error = await res.json();
-
-        // setMessage(error.message || 'Something went wrong!')
+        toast(error.message || "Something went wrong!");
       }
     } catch (error) {
       console.error("Error creating product:", error);
 
-      // setMessage('An error occurred. Please try again.')
+      toast("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -139,30 +148,36 @@ const ProductCreate = () => {
                 type="file"
                 className="peer hidden"
                 accept=".gif,.jpg,.png,.jpeg"
-                multiple
+                onChange={async (e) =>
+                  setImageValue(await toBase64(e.target.files[0]))
+                }
               />
               <label
                 htmlFor="id-dropzone02"
                 className="flex cursor-pointer flex-col items-center gap-6 rounded border border-dashed border-slate-300 px-6 py-10 text-center"
               >
-                <span className="inline-flex h-12 items-center justify-center self-center rounded bg-slate-100/70 px-3 text-slate-400">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-label="File input icon"
-                    role="graphics-symbol"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    className="h-6 w-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
-                    />
-                  </svg>
-                </span>
+                {isEmpty(imageValue) ? (
+                  <span className="inline-flex h-12 items-center justify-center self-center rounded bg-slate-100/70 px-3 text-slate-400">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-label="File input icon"
+                      role="graphics-symbol"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="h-6 w-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                      />
+                    </svg>
+                  </span>
+                ) : (
+                  <Image src={imageValue} alt="image" width={100} height={80} />
+                )}
                 <p className="flex flex-col items-center justify-center gap-1 text-sm">
                   <span className="text-emerald-500 hover:text-emerald-500">
                     Upload media
@@ -177,10 +192,15 @@ const ProductCreate = () => {
             </div>
 
             <button
+              disabled={loading}
               type="submit"
               className="inline-flex items-center justify-center h-12 gap-2 px-6 text-sm font-medium tracking-wide text-white transition duration-300 rounded whitespace-nowrap bg-emerald-500 hover:bg-emerald-600 focus:bg-emerald-700 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-emerald-300 disabled:bg-emerald-300 disabled:shadow-none"
             >
-              <span>Submit</span>
+              {loading ? (
+                <LoadingOverlay loading={loading} />
+              ) : (
+                <span>Submit</span>
+              )}
             </button>
           </form>
         </div>

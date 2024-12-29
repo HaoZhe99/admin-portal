@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { useSession, signIn } from "next-auth/react";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 const AuthWrapper = ({ children }) => {
   const router = useRouter();
@@ -16,7 +17,11 @@ const AuthWrapper = ({ children }) => {
   }, [status]);
 
   if (status === "loading") {
-    return <div>Loading...</div>; // Optional: Add a loading state
+    return (
+      <div className="h-screen">
+        <LoadingOverlay loading />
+      </div>
+    ); // Optional: Add a loading state
   }
 
   if (session) {

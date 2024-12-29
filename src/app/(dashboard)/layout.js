@@ -11,7 +11,9 @@ const Layout = async ({ children }) => {
             <SideNavigation />
           </div>
 
-          <div className="col-span-10 min-h-screen p-4">{children}</div>
+          <div className="col-span-10 min-h-screen p-4 bg-gray-50">
+            {children}
+          </div>
         </div>
       </AuthWrapper>
     </SessionProvider>
