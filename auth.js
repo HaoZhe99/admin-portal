@@ -39,8 +39,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // logic to verify if the user exists\
         user = await getUserFromDb(credentials.email, credentials.password);
 
-        console.log("user", user);
-
         if (!user) {
           // No user found, so this is their first attempt to login
           // Optionally, this is also the place you could do a user registration
@@ -53,11 +51,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
+    async session({ session, token }) {
+      // Add the user ID from the token to the session object
+      return session;
+    },
     async jwt({ token, user, account }) {
       if (account.provider === "credentials") {
         token.credentials = true;
       }
-
       return token;
     },
   },
@@ -74,6 +75,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           sessionToken: sessionToken,
           userId: params.token.sub,
           expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+          hi: "hi",
         });
 
         if (!createdSession) {

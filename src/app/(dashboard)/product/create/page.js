@@ -1,13 +1,16 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { isEmpty } from "lodash";
+import { get, isEmpty } from "lodash";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import { useSession } from "next-auth/react";
 
 const ProductCreate = () => {
   const router = useRouter();
+  const { data: session } = useSession(); // Fetch the session
+  const userId = get(session, ["user", "id"], "");
 
   const [imageValue, setImageValue] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,6 +44,7 @@ const ProductCreate = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          userId: userId,
           name: name,
           price: price,
           status: status,

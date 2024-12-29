@@ -1,10 +1,15 @@
-import { isEmpty, toInteger } from "lodash";
+import { get, isEmpty, toInteger } from "lodash";
 
 import { pool } from "../../../utils/db/db_connection";
+import { auth } from "../../../../auth";
 
 export async function GET() {
+  const { user } = await auth();
   try {
-    const result = await pool.query("SELECT * FROM products");
+    const result = await pool.query(
+      "SELECT * FROM products WHERE user_id = $1",
+      [get(user, ["id"], "")],
+    );
 
     return new Response(JSON.stringify(result.rows), { status: 200 });
   } catch (error) {
@@ -18,9 +23,9 @@ export async function GET() {
 
 export async function POST(req) {
   try {
-    const { name, price, status, image } = await req.json();
+    const { name, price, status, image, userId } = await req.json();
 
-    if (!name || !status || !price || !image) {
+    if (!name || !status || !price || !image || !userId) {
       return new Response(
         JSON.stringify({ message: "All fields are required" }),
         { status: 400 },
@@ -28,8 +33,8 @@ export async function POST(req) {
     }
 
     const result = await pool.query(
-      "INSERT INTO products (name,  price, status, image) VALUES ($1, $2, $3, $4) RETURNING *",
-      [name, price, status, image],
+      "INSERT INTO products (name,  price, status, image, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [name, price, status, image, userId],
     );
 
     return new Response(JSON.stringify(result.rows[0]), { status: 201 });
