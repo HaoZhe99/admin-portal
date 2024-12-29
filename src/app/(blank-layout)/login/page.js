@@ -1,4 +1,31 @@
+"use client";
+import { isEmpty } from "lodash";
+import { LogInAction } from "@/app/actions/auth";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "react-toastify";
+
 const LoginPage = () => {
+  const router = useRouter();
+
+  const [isPasswordShown, setIsPasswordShown] = useState(false);
+
+  const credentialsAction = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await LogInAction(new FormData(e.target));
+
+      console.log("res", res);
+      if (!isEmpty(res)) {
+        router.push("/product");
+      }
+    } catch (e) {
+      toast(e);
+      console.log(e);
+    }
+  };
+
   return (
     <div className="bg-gray-50 font-[sans-serif]">
       <div className="min-h-screen flex flex-col items-center justify-center py-6 px-4">
@@ -15,18 +42,18 @@ const LoginPage = () => {
             <h2 className="text-gray-800 text-center text-2xl font-bold">
               Sign in
             </h2>
-            <form className="mt-8 space-y-4">
+            <form className="mt-8 space-y-4" onSubmit={credentialsAction}>
               <div>
                 <label className="text-gray-800 text-sm mb-2 block">
                   User name
                 </label>
                 <div className="relative flex items-center">
                   <input
-                    name="username"
+                    name="email"
                     type="text"
                     required
                     className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
-                    placeholder="Enter user name"
+                    placeholder="Enter email"
                   />
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -56,12 +83,13 @@ const LoginPage = () => {
                 <div className="relative flex items-center">
                   <input
                     name="password"
-                    type="password"
+                    type={isPasswordShown ? "text" : "password"}
                     required
                     className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
                     placeholder="Enter password"
                   />
                   <svg
+                    onClick={() => setIsPasswordShown(!isPasswordShown)}
                     xmlns="http://www.w3.org/2000/svg"
                     fill="#bbb"
                     stroke="#bbb"
@@ -76,34 +104,34 @@ const LoginPage = () => {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center">
-                  <input
-                    id="remember-me"
-                    name="remember-me"
-                    type="checkbox"
-                    className="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label
-                    htmlFor="remember-me"
-                    className="ml-3 block text-sm text-gray-800"
-                  >
-                    Remember me
-                  </label>
-                </div>
-                <div className="text-sm">
-                  <a
-                    href="jajvascript:void(0);"
-                    className="text-blue-600 hover:underline font-semibold"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
-              </div>
+              {/*<div className="flex flex-wrap items-center justify-between gap-4">*/}
+              {/*  <div className="flex items-center">*/}
+              {/*    <input*/}
+              {/*      id="remember-me"*/}
+              {/*      name="remember-me"*/}
+              {/*      type="checkbox"*/}
+              {/*      className="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"*/}
+              {/*    />*/}
+              {/*    <label*/}
+              {/*      htmlFor="remember-me"*/}
+              {/*      className="ml-3 block text-sm text-gray-800"*/}
+              {/*    >*/}
+              {/*      Remember me*/}
+              {/*    </label>*/}
+              {/*  </div>*/}
+              {/*  <div className="text-sm">*/}
+              {/*    <a*/}
+              {/*      href="jajvascript:void(0);"*/}
+              {/*      className="text-blue-600 hover:underline font-semibold"*/}
+              {/*    >*/}
+              {/*      Forgot your password?*/}
+              {/*    </a>*/}
+              {/*  </div>*/}
+              {/*</div>*/}
 
               <div className="!mt-8">
                 <button
-                  type="button"
+                  type="submit"
                   className="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
                 >
                   Sign in
@@ -112,7 +140,7 @@ const LoginPage = () => {
               <p className="text-gray-800 text-sm !mt-8 text-center">
                 Don't have an account?{" "}
                 <a
-                  href="javascript:void(0);"
+                  href="/register"
                   className="text-blue-600 hover:underline ml-1 whitespace-nowrap font-semibold"
                 >
                   Register here

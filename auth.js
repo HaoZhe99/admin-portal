@@ -12,8 +12,6 @@ import { pool } from "./src/utils/db/db_connection";
 import { getUserFromDb } from "@/utils/db";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  // const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-
   adapter: PostgresAdapter(pool),
   secret: process.env.AUTH_SECRET,
   providers: [
@@ -56,14 +54,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user, account }) {
-      if (account?.provider === "credentials") {
+      if (account.provider === "credentials") {
         token.credentials = true;
       }
 
       return token;
     },
   },
-
   jwt: {
     encode: async function (params) {
       if (params.token.credentials) {

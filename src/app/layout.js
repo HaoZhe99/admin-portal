@@ -1,15 +1,7 @@
-"use client";
-
 import "./globals.css";
-import SideNavigation from "@/components/SideNavigation";
-import { usePathname, useRouter } from "next/navigation";
-import { includes } from "lodash";
+import { ToastContainer } from "react-toastify";
 
 export default function RootLayout({ children }) {
-  const routerName = usePathname();
-  const routeLists = ["/login", "/register"];
-  const isShowNav = includes(routeLists, routerName) ? false : true;
-
   return (
     <html lang="en">
       <head>
@@ -18,19 +10,8 @@ export default function RootLayout({ children }) {
         <link href="./globals.css" rel="stylesheet" />
       </head>
       <body className={`min-h-screen w-screen bg-white`}>
-        <div
-          className={`grid ${isShowNav ? "grid-cols-12" : "grid-cols-10"} min-h-screen`}
-        >
-          {isShowNav ? (
-            <div className="col-span-2">
-              <SideNavigation />
-            </div>
-          ) : (
-            false
-          )}
-
-          <div className="col-span-10 min-h-screen p-4">{children}</div>
-        </div>
+        {children}
+        <ToastContainer />
       </body>
     </html>
   );
