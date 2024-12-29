@@ -1,6 +1,6 @@
 import { isEmpty } from 'lodash'
 
-import { pool } from '../../../db/db_connection'
+import { pool } from '../../../../utils/db/db_connection'
 
 export async function POST(req) {
   try {
