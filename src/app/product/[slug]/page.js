@@ -1,4 +1,100 @@
-const ProductEdit = () => {
+"use client";
+import React from "react";
+import { get, isEmpty } from "lodash";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+const ProductEdit = ({ params }) => {
+  const resolvedParams = React.use(params);
+
+  const { slug } = resolvedParams;
+  const router = useRouter();
+
+  const [nameValue, setNameValue] = useState("");
+  const [priceValue, setPriceValue] = useState("");
+  const [statusValue, setStatusValue] = useState("");
+  const [imageValue, setImageValue] = useState("");
+
+  useEffect(() => {
+    fetchProductDetail();
+  }, []);
+
+  const fetchProductDetail = async () => {
+    try {
+      const res = await fetch(`/api/product/${slug}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (res.ok) {
+        const product = await res.json();
+
+        const productName = get(product, ["name"], "");
+        const productPrice = get(product, ["price"], "");
+        const productStatus = get(product, ["status"], "");
+        const productImage = get(product, ["image"], "");
+
+        setNameValue(productName);
+        setPriceValue(productPrice);
+        setStatusValue(productStatus);
+        setImageValue(productImage);
+
+        // setMessage(`Product "${product.name}" created successfully!`)
+      } else {
+        const error = await res.json();
+
+        // setMessage(error.message || 'Something went wrong!')
+      }
+    } catch (error) {
+      console.error("Error creating product:", error);
+
+      // setMessage('An error occurred. Please try again.')
+    }
+  };
+
+  const toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+    });
+
+  const onClickSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const name = formData.get("name");
+    const price = formData.get("price");
+    const status = formData.get("status");
+    const image = formData.get("image");
+
+    try {
+      const res = await fetch("/api/product", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: slug,
+          name: name,
+          price: price,
+          status: status,
+          image: isEmpty(image) ? imageValue : image,
+        }),
+      });
+
+      if (res.ok) {
+        router.push("/product");
+      }
+    } catch (error) {
+      console.error("Error creating product:", error);
+    }
+  };
+
   return (
     <div>
       <div className="overflow-hidden rounded-lg bg-white text-slate-500 border">
@@ -7,12 +103,14 @@ const ProductEdit = () => {
             Product Edit
           </h3>
 
-          <form>
+          <form onSubmit={onClickSubmit}>
             <div className="relative my-6">
               <input
+                value={nameValue}
+                onChange={(e) => setNameValue(e.target.value)}
                 id="id-l01"
                 type="text"
-                name="id-l01"
+                name="name"
                 placeholder="product name"
                 className="peer relative h-12 w-full rounded border border-slate-200 px-4 text-slate-500 placeholder-transparent outline-none transition-all autofill:bg-white invalid:border-pink-500 invalid:text-pink-500 focus:border-emerald-500 focus:outline-none invalid:focus:border-pink-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
               />
@@ -26,9 +124,11 @@ const ProductEdit = () => {
 
             <div className="relative my-6">
               <input
+                value={priceValue}
+                onChange={(e) => setPriceValue(e.target.value)}
                 id="id-l01"
                 type="text"
-                name="id-l01"
+                name="price"
                 placeholder="product price"
                 className="peer relative h-12 w-full rounded border border-slate-200 px-4 text-slate-500 placeholder-transparent outline-none transition-all autofill:bg-white invalid:border-pink-500 invalid:text-pink-500 focus:border-emerald-500 focus:outline-none invalid:focus:border-pink-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
               />
@@ -42,14 +142,15 @@ const ProductEdit = () => {
 
             <div className="relative my-6">
               <select
+                value={statusValue}
+                onChange={(e) => setStatusValue(e.target.value)}
                 id="id-10"
-                name="id-10"
+                name="status"
                 className="relative w-full h-12 px-4 transition-all bg-white border rounded outline-none appearance-none focus-visible:outline-none peer border-slate-200 text-slate-500 autofill:bg-white focus:border-emerald-500 focus:focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
               >
                 <option value="">Select a status</option>
-                <option value="1">Option 1</option>
-                <option value="2">Option 2</option>
-                <option value="3">Option 3</option>
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
               </select>
               <label
                 htmlFor="id-10"
@@ -76,14 +177,19 @@ const ProductEdit = () => {
             </div>
 
             <div className="relative my-6">
+              {/* File Input */}
               <input
                 id="id-dropzone02"
-                name="file-upload"
+                name="image"
                 type="file"
                 className="peer hidden"
                 accept=".gif,.jpg,.png,.jpeg"
                 multiple
+                onChange={async (e) =>
+                  setImageValue(await toBase64(e.target.files[0]))
+                }
               />
+              {/* Dropzone Label */}
               <label
                 htmlFor="id-dropzone02"
                 className="flex cursor-pointer flex-col items-center gap-6 rounded border border-dashed border-slate-300 px-6 py-10 text-center"
@@ -112,11 +218,23 @@ const ProductEdit = () => {
                     <span className="text-slate-500"> or drag and drop </span>
                   </span>
                   <span className="text-slate-600">
-                    {" "}
-                    PNG, JPG or GIF up to 10MB{" "}
+                    PNG, JPG or GIF up to 10MB
                   </span>
                 </p>
               </label>
+
+              {/* Display Uploaded Images */}
+              {imageValue.length > 0 && (
+                <div className="mt-6 grid grid-cols-2 gap-4">
+                  <div className="relative">
+                    <img
+                      src={imageValue}
+                      alt={`Uploaded`}
+                      className="w-full h-auto rounded"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <button

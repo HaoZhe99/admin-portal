@@ -1,4 +1,62 @@
+"use client";
+import { useRouter } from "next/navigation";
+
 const ProductCreate = () => {
+  const router = useRouter();
+
+  const toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+    });
+
+  const onClickSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const name = formData.get("name");
+    const price = formData.get("price");
+    const status = formData.get("status");
+    const image = formData.get("image");
+
+    const base64Image = await toBase64(image);
+
+    try {
+      const res = await fetch("/api/product", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name,
+          price: price,
+          status: status,
+          image: base64Image,
+        }),
+      });
+
+      if (res.ok) {
+        router.push("/product");
+
+        const product = await res.json();
+
+        // setMessage(`Product "${product.name}" created successfully!`)
+        // setFormData({ name: '', description: '', price: '' }) // Clear form
+      } else {
+        const error = await res.json();
+
+        // setMessage(error.message || 'Something went wrong!')
+      }
+    } catch (error) {
+      console.error("Error creating product:", error);
+
+      // setMessage('An error occurred. Please try again.')
+    }
+  };
+
   return (
     <div>
       <div className="overflow-hidden rounded-lg bg-white text-slate-500 border">
@@ -7,12 +65,12 @@ const ProductCreate = () => {
             Product Create
           </h3>
 
-          <form>
+          <form onSubmit={onClickSubmit}>
             <div className="relative my-6">
               <input
                 id="id-l01"
                 type="text"
-                name="id-l01"
+                name="name"
                 placeholder="product name"
                 className="peer relative h-12 w-full rounded border border-slate-200 px-4 text-slate-500 placeholder-transparent outline-none transition-all autofill:bg-white invalid:border-pink-500 invalid:text-pink-500 focus:border-emerald-500 focus:outline-none invalid:focus:border-pink-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
               />
@@ -28,7 +86,7 @@ const ProductCreate = () => {
               <input
                 id="id-l01"
                 type="text"
-                name="id-l01"
+                name="price"
                 placeholder="product price"
                 className="peer relative h-12 w-full rounded border border-slate-200 px-4 text-slate-500 placeholder-transparent outline-none transition-all autofill:bg-white invalid:border-pink-500 invalid:text-pink-500 focus:border-emerald-500 focus:outline-none invalid:focus:border-pink-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
               />
@@ -43,13 +101,12 @@ const ProductCreate = () => {
             <div className="relative my-6">
               <select
                 id="id-10"
-                name="id-10"
+                name="status"
                 className="relative w-full h-12 px-4 transition-all bg-white border rounded outline-none appearance-none focus-visible:outline-none peer border-slate-200 text-slate-500 autofill:bg-white focus:border-emerald-500 focus:focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
               >
                 <option value="">Select a status</option>
-                <option value="1">Option 1</option>
-                <option value="2">Option 2</option>
-                <option value="3">Option 3</option>
+                <option value="1">Active</option>
+                <option value="0">InActive</option>
               </select>
               <label
                 htmlFor="id-10"
@@ -78,7 +135,7 @@ const ProductCreate = () => {
             <div className="relative my-6">
               <input
                 id="id-dropzone02"
-                name="file-upload"
+                name="image"
                 type="file"
                 className="peer hidden"
                 accept=".gif,.jpg,.png,.jpeg"
