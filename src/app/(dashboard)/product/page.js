@@ -33,7 +33,7 @@ const ProductsPage = () => {
 
       if (res.ok) {
         const product = await res.json();
-        console.log(product);
+
         setProductList(product.data);
         setProductPagination(product.pagination);
       } else {
