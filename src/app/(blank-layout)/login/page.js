@@ -19,9 +19,7 @@ const LoginPage = () => {
     try {
       const res = await LogInAction(new FormData(e.target));
 
-      if (!isEmpty(res)) {
-        router.push("/product");
-      }
+      router.push("/product");
     } catch (e) {
       toast(e);
     } finally {

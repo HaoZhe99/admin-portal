@@ -1,6 +1,6 @@
 "use server";
 import { signIn } from "../../../../auth";
-import { toast } from "react-toastify";
+import { console } from "next/dist/compiled/@edge-runtime/primitives";
 
 export const LogInAction = async (formData) => {
   try {
@@ -13,5 +13,9 @@ export const LogInAction = async (formData) => {
     return res;
   } catch (error) {
     console.log(error);
+    return {
+      success: false,
+      message: "Invalid credentials.",
+    };
   }
 };
