@@ -1,8 +1,16 @@
 "use client";
 import React, { useState } from "react";
 import { signOut } from "next-auth/react";
+import { toast } from "react-toastify";
+import { useSession } from "next-auth/react";
+import { get } from "lodash";
 
 export default function SideNavigation() {
+  const { data: session } = useSession();
+
+  const userName = get(session, ["user", "name"], "");
+  const userEmail = get(session, ["user", "email"], "");
+
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
 
   return (
@@ -68,10 +76,10 @@ export default function SideNavigation() {
           </div>
           <div className="flex min-h-[2rem] w-full min-w-0 flex-col items-start justify-center gap-0 text-center">
             <h4 className="w-full truncate text-base text-slate-700">
-              Luke Skywalker
+              {userName}
             </h4>
             <p className="w-full truncate text-sm text-slate-500">
-              Jedi warrior
+              {userEmail}
             </p>
           </div>
         </div>
@@ -349,7 +357,16 @@ export default function SideNavigation() {
             </div>
 
             <div
-              onClick={() => signOut()}
+              onClick={() => {
+                toast("Sign out loading...");
+                try {
+                  signOut();
+                } catch (e) {
+                  toast(e);
+                } finally {
+                  toast("Sign out successfully!");
+                }
+              }}
               className="flex w-full flex-1 flex-col items-start justify-center gap-0 overflow-hidden truncate text-sm font-medium"
             >
               Logout

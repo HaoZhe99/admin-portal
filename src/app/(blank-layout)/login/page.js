@@ -4,14 +4,17 @@ import { LogInAction } from "@/app/actions/auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 const LoginPage = () => {
   const router = useRouter();
 
+  const [loading, setLoading] = useState(false);
   const [isPasswordShown, setIsPasswordShown] = useState(false);
 
   const credentialsAction = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const res = await LogInAction(new FormData(e.target));
@@ -21,6 +24,8 @@ const LoginPage = () => {
       }
     } catch (e) {
       toast(e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -96,10 +101,15 @@ const LoginPage = () => {
 
               <div className="!mt-8">
                 <button
+                  disabled={loading}
                   type="submit"
                   className="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
                 >
-                  Login
+                  {loading ? (
+                    <LoadingOverlay loading={loading} />
+                  ) : (
+                    <span>Login</span>
+                  )}
                 </button>
               </div>
               <p className="text-gray-800 text-sm !mt-8 text-center">

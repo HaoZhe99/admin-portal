@@ -3,15 +3,39 @@ import { get, isEmpty, toInteger } from "lodash";
 import { pool } from "../../../utils/db/db_connection";
 import { auth } from "../../../../auth";
 
-export async function GET() {
+export async function GET(request) {
   const { user } = await auth();
+
+  const url = new URL(request.url);
+  const page = parseInt(url.searchParams.get("page") || "1", 10);
+  const perPage = parseInt(url.searchParams.get("limit") || "10", 2);
+
+  const offset = (page - 1) * perPage;
+
   try {
     const result = await pool.query(
-      "SELECT * FROM products WHERE user_id = $1",
-      [get(user, ["id"], "")],
+      "SELECT * FROM products WHERE user_id = $1 LIMIT $2 OFFSET $3",
+      [get(user, ["id"], ""), perPage, offset],
     );
 
-    return new Response(JSON.stringify(result.rows), { status: 200 });
+    const totalResult = await pool.query(
+      "SELECT COUNT(*) FROM products WHERE user_id = $1",
+      [get(user, ["id"], "")],
+    );
+    const total = parseInt(totalResult.rows[0].count, 10);
+
+    return new Response(
+      JSON.stringify({
+        data: result.rows,
+        pagination: {
+          total,
+          page,
+          perPage,
+          totalPages: Math.ceil(total / perPage),
+        },
+      }),
+      { status: 200 },
+    );
   } catch (error) {
     console.error("Error get product:", error);
 

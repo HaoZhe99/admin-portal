@@ -1,10 +1,13 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 const RegisterPage = () => {
   const router = useRouter();
 
+  const [loading, setLoading] = useState(false);
   const [isPasswordShown, setIsPasswordShown] = useState(false);
   const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState(false);
 
@@ -18,10 +21,12 @@ const RegisterPage = () => {
     const confirmPassword = formData.get("confirmPassword");
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match! Please try again.");
+      toast("Passwords do not match! Please try again.");
 
       return;
     }
+
+    setLoading(true);
 
     try {
       const res = await fetch("/api/auth/register", {
@@ -34,15 +39,16 @@ const RegisterPage = () => {
 
       if (res.ok) {
         router.push("/login");
-        alert("Registration successful!");
+        toast("Registration successful!");
       } else {
         const error = await res.json();
 
-        alert(error.message || "Something went wrong!");
+        toast(error.message || "Something went wrong!");
       }
     } catch (error) {
-      console.error("Error during registration:", error);
-      alert("An error occurred. Please try again.");
+      toast("Error during registration:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -176,10 +182,15 @@ const RegisterPage = () => {
 
                 <div className="!mt-8">
                   <button
+                    disabled={loading}
                     type="submit"
                     className="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
                   >
-                    Register
+                    {loading ? (
+                      <LoadingOverlay loading={loading} />
+                    ) : (
+                      <span>Register</span>
+                    )}
                   </button>
                 </div>
                 <p className="text-gray-800 text-sm !mt-8 text-center">
