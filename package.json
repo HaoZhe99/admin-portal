@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.7.4",
+    "crypto-js": "^4.2.0",
     "lodash": "^4.17.21",
     "next": "15.1.2",
     "next-auth": "^5.0.0-beta.25",
