@@ -2,6 +2,7 @@ import { get, isEmpty, toInteger } from "lodash";
 
 import { pool } from "../../../utils/db/db_connection";
 import { auth } from "../../../../auth";
+import moment from "moment-timezone";
 
 export async function GET(request) {
   const { user } = await auth();
@@ -47,9 +48,26 @@ export async function GET(request) {
 
 export async function POST(req) {
   try {
-    const { name, price, status, image, userId } = await req.json();
+    const {
+      name,
+      price,
+      status,
+      image,
+      userId,
+      quantity,
+      category,
+      description,
+    } = await req.json();
 
-    if (!name || !status || !price || !image || !userId) {
+    if (
+      isEmpty(name) ||
+      isEmpty(status) ||
+      isEmpty(price) ||
+      isEmpty(image) ||
+      isEmpty(quantity) ||
+      isEmpty(category) ||
+      isEmpty(description)
+    ) {
       return new Response(
         JSON.stringify({ message: "All fields are required" }),
         { status: 400 },
@@ -57,8 +75,18 @@ export async function POST(req) {
     }
 
     const result = await pool.query(
-      "INSERT INTO products (name,  price, status, image, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [name, price, status, image, userId],
+      "INSERT INTO products (name,  price, status, image, user_id, quantity, category, description, created_at) VALUES ($1, $2, $3, $4, $5, $6,$7,$8,$9) RETURNING *",
+      [
+        name,
+        price,
+        status,
+        image,
+        userId,
+        quantity,
+        category,
+        description,
+        moment().tz("Asia/Singapore").format("YYYY-MM-DD HH:mm:ss"),
+      ],
     );
 
     return new Response(JSON.stringify(result.rows[0]), { status: 201 });
@@ -73,14 +101,18 @@ export async function POST(req) {
 
 export async function PUT(req) {
   try {
-    const { id, name, price, status, image } = await req.json();
+    const { id, name, price, status, image, quantity, category, description } =
+      await req.json();
 
     if (
       isEmpty(name) ||
       isEmpty(status) ||
       isEmpty(price) ||
       isEmpty(image) ||
-      isEmpty(id)
+      isEmpty(id) ||
+      isEmpty(quantity) ||
+      isEmpty(category) ||
+      isEmpty(description)
     ) {
       return new Response(
         JSON.stringify({ message: "All fields are required" }),
@@ -89,8 +121,18 @@ export async function PUT(req) {
     }
 
     const result = await pool.query(
-      "UPDATE products SET name = $1, price = $2, status = $3, image = $4 WHERE id = $5 RETURNING *",
-      [name, price, status, image, id],
+      "UPDATE products SET name = $1, price = $2, status = $3, image = $4, quantity = $6, category = $7, description = $8, updated_at = $9 WHERE id = $5 RETURNING *",
+      [
+        name,
+        price,
+        status,
+        image,
+        id,
+        quantity,
+        category,
+        description,
+        moment().tz("Asia/Singapore").format("YYYY-MM-DD HH:mm:ss"),
+      ],
     );
 
     if (result.rows.length === 0) {

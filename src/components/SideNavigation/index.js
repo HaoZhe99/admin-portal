@@ -14,7 +14,7 @@ export default function SideNavigation() {
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
 
   return (
-    <div className="h-screen">
+    <div className="min-h-screen h-full">
       {/*  <!-- Component: Side navigation menu with user profile and alert message --> */}
       {/*  <!-- Mobile trigger --> */}
       <button
@@ -333,10 +333,7 @@ export default function SideNavigation() {
         </nav>
 
         <footer className="border-t border-slate-200 p-3 bg-gray-50">
-          <a
-            href="#"
-            className="flex items-center gap-3 rounded p-3 text-slate-900 transition-colors hover:text-emerald-500 "
-          >
+          <div className="flex items-center gap-3 rounded p-3 text-slate-900 transition-colors hover:text-emerald-500 cursor-pointer">
             <div className="flex items-center self-center ">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -371,7 +368,7 @@ export default function SideNavigation() {
             >
               Logout
             </div>
-          </a>
+          </div>
         </footer>
       </aside>
 

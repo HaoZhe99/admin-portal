@@ -1,5 +1,5 @@
 "use client";
-import { get, map } from "lodash";
+import { get, isEmpty, isEqual, map } from "lodash";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -13,7 +13,7 @@ const ProductsPage = () => {
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const currentPage = get(productPagination, ["page"], "");
+  const currentPage = get(productPagination, ["page"], 1);
   const totalPage = get(productPagination, ["totalPages"], "");
 
   useEffect(() => {
@@ -116,6 +116,12 @@ const ProductsPage = () => {
                     scope="col"
                     className="h-12 px-6 text-sm font-medium border-l first:border-l-0 stroke-slate-700 text-slate-700 bg-slate-100"
                   >
+                    Quantity
+                  </th>
+                  <th
+                    scope="col"
+                    className="h-12 px-6 text-sm font-medium border-l first:border-l-0 stroke-slate-700 text-slate-700 bg-slate-100"
+                  >
                     Statue
                   </th>
                   <th
@@ -147,7 +153,12 @@ const ProductsPage = () => {
                         {get(list, ["price"], "")}
                       </td>
                       <td className="h-12 px-6 text-sm transition duration-300 border-t border-l first:border-l-0 border-slate-200 stroke-slate-500 text-slate-500 ">
-                        {get(list, ["status"], "")}
+                        {get(list, ["quantity"], "")}
+                      </td>
+                      <td className="h-12 px-6 text-sm transition duration-300 border-t border-l first:border-l-0 border-slate-200 stroke-slate-500 text-slate-500 ">
+                        {isEqual(get(list, ["status"], ""), "1")
+                          ? "Active"
+                          : "Inactive"}
                       </td>
                       <td className="h-12 px-6 text-sm transition duration-300 border-t border-l first:border-l-0 border-slate-200 stroke-slate-500 text-slate-500 ">
                         <Image
@@ -209,150 +220,149 @@ const ProductsPage = () => {
             </table>
           </div>
 
-          <nav
-            className="pt-10"
-            role="navigation"
-            aria-label="Pagination Navigation"
-          >
-            <ul className="flex list-none items-center justify-center text-sm text-slate-700 md:gap-1">
-              {/* First Page Button */}
-              <li>
-                <button
-                  aria-label="Goto First Page"
-                  className={`inline-flex h-10 items-center justify-center gap-4 rounded px-4 font-medium ${
-                    currentPage === 1
-                      ? "cursor-not-allowed text-slate-400"
-                      : "hover:bg-emerald-50 hover:text-emerald-500"
-                  }`}
-                  onClick={() => handlePageChange(1)}
-                  disabled={currentPage === 1}
-                >
-                  <span className="sr-only">First</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="-mx-1 h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
-                    />
-                  </svg>
-                </button>
-              </li>
-
-              {/* Previous Page Button */}
-              <li>
-                <button
-                  aria-label="Goto Previous Page"
-                  className={`inline-flex h-10 items-center justify-center gap-4 rounded px-4 font-medium ${
-                    currentPage === 1
-                      ? "cursor-not-allowed text-slate-400"
-                      : "hover:bg-emerald-50 hover:text-emerald-500"
-                  }`}
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  <span className="sr-only">Previous</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="-mx-1 h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                </button>
-              </li>
-
-              {/* Page Numbers */}
-              {map(Array(totalPage), (_, index) => (
-                <li key={index}>
+          {isEmpty(productList) ? (
+            false
+          ) : (
+            <nav
+              className="pt-10"
+              role="navigation"
+              aria-label="Pagination Navigation"
+            >
+              <ul className="flex list-none items-center justify-center text-sm text-slate-700 md:gap-1">
+                <li>
                   <button
-                    aria-label={`Goto Page ${index + 1}`}
-                    className={`h-10 items-center justify-center rounded px-4 text-sm font-medium ${
-                      currentPage === index + 1
-                        ? "bg-emerald-50 text-emerald-500"
+                    aria-label="Goto First Page"
+                    className={`inline-flex h-10 items-center justify-center gap-4 rounded px-4 font-medium ${
+                      currentPage === 1
+                        ? "cursor-not-allowed text-slate-400"
                         : "hover:bg-emerald-50 hover:text-emerald-500"
                     }`}
-                    onClick={() => handlePageChange(index + 1)}
+                    onClick={() => handlePageChange(1)}
+                    disabled={currentPage === 1}
                   >
-                    {index + 1}
+                    <span className="sr-only">First</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="-mx-1 h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                      />
+                    </svg>
                   </button>
                 </li>
-              ))}
 
-              {/* Next Page Button */}
-              <li>
-                <button
-                  aria-label="Goto Next Page"
-                  className={`inline-flex h-10 items-center justify-center gap-4 rounded px-4 font-medium ${
-                    currentPage === totalPage
-                      ? "cursor-not-allowed text-slate-400"
-                      : "hover:bg-emerald-50 hover:text-emerald-500"
-                  }`}
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPage}
-                >
-                  <span className="sr-only">Next</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="-mx-1 h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
+                <li>
+                  <button
+                    aria-label="Goto Previous Page"
+                    className={`inline-flex h-10 items-center justify-center gap-4 rounded px-4 font-medium ${
+                      currentPage === 1
+                        ? "cursor-not-allowed text-slate-400"
+                        : "hover:bg-emerald-50 hover:text-emerald-500"
+                    }`}
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              </li>
+                    <span className="sr-only">Previous</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="-mx-1 h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15 19l-7-7 7-7"
+                      />
+                    </svg>
+                  </button>
+                </li>
 
-              {/* Last Page Button */}
-              <li>
-                <button
-                  aria-label="Goto Last Page"
-                  className={`inline-flex h-10 items-center justify-center gap-4 rounded px-4 font-medium ${
-                    currentPage === totalPage
-                      ? "cursor-not-allowed text-slate-400"
-                      : "hover:bg-emerald-50 hover:text-emerald-500"
-                  }`}
-                  onClick={() => handlePageChange(totalPage)}
-                  disabled={currentPage === totalPage}
-                >
-                  <span className="sr-only">Last</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="-mx-1 h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
+                {map(Array(totalPage), (_, index) => (
+                  <li key={index}>
+                    <button
+                      aria-label={`Goto Page ${index + 1}`}
+                      className={`h-10 items-center justify-center rounded px-4 text-sm font-medium ${
+                        currentPage === index + 1
+                          ? "bg-emerald-50 text-emerald-500"
+                          : "hover:bg-emerald-50 hover:text-emerald-500"
+                      }`}
+                      onClick={() => handlePageChange(index + 1)}
+                    >
+                      {index + 1}
+                    </button>
+                  </li>
+                ))}
+
+                <li>
+                  <button
+                    aria-label="Goto Next Page"
+                    className={`inline-flex h-10 items-center justify-center gap-4 rounded px-4 font-medium ${
+                      currentPage === totalPage
+                        ? "cursor-not-allowed text-slate-400"
+                        : "hover:bg-emerald-50 hover:text-emerald-500"
+                    }`}
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPage}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M13 5l7 7-7 7M5 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              </li>
-            </ul>
-          </nav>
+                    <span className="sr-only">Next</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="-mx-1 h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                </li>
+
+                <li>
+                  <button
+                    aria-label="Goto Last Page"
+                    className={`inline-flex h-10 items-center justify-center gap-4 rounded px-4 font-medium ${
+                      currentPage === totalPage
+                        ? "cursor-not-allowed text-slate-400"
+                        : "hover:bg-emerald-50 hover:text-emerald-500"
+                    }`}
+                    onClick={() => handlePageChange(totalPage)}
+                    disabled={currentPage === totalPage}
+                  >
+                    <span className="sr-only">Last</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="-mx-1 h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          )}
         </div>
       )}
     </div>
