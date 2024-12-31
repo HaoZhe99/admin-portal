@@ -1,16 +1,24 @@
 "use client";
-import { isEmpty } from "lodash";
 import { LogInAction } from "@/app/actions/auth";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import { useSession, signIn } from "next-auth/react";
+import { isEmpty } from "lodash";
 
 const LoginPage = () => {
   const router = useRouter();
+  const { data: session } = useSession();
 
   const [loading, setLoading] = useState(false);
   const [isPasswordShown, setIsPasswordShown] = useState(false);
+
+  useEffect(() => {
+    if (!isEmpty(session)) {
+      router.push("/");
+    }
+  }, [session]);
 
   const credentialsAction = async (e) => {
     e.preventDefault();

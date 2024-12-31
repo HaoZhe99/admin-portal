@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 import { useRouter } from "next/navigation";
 
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import LoadingOverlay from "@/components/LoadingOverlay";
 
 const AuthWrapper = ({ children }) => {
